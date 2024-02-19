@@ -22,7 +22,7 @@ public class Indexer extends SubsystemBase {
   private static DigitalInput beamBreak;
   /** Creates a new index. */
   public Indexer() {
-indexMotor = new CANSparkMax(12, MotorType.kBrushless);
+indexMotor = new CANSparkMax(10, MotorType.kBrushless);
 beamBreak = new DigitalInput(0);
 
 indexConfig(); 

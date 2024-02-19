@@ -24,8 +24,8 @@ public class Shooter extends SubsystemBase {
   private final SparkPIDController shootController ;
   /** Creates a new shootator. */
   public Shooter() {
-    shootMotorLeft= new CANSparkMax(9, MotorType.kBrushless);
-    shootMotorRight= new CANSparkMax(10, MotorType.kBrushless);
+    shootMotorLeft= new CANSparkMax(12, MotorType.kBrushless);
+    shootMotorRight= new CANSparkMax(13, MotorType.kBrushless);
     shootController = shootMotorLeft.getPIDController();
     integratedLeftEncoder = shootMotorLeft.getEncoder();
     shooterConfig();

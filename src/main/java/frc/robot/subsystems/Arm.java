@@ -45,8 +45,8 @@ public class Arm extends SubsystemBase {
   private static double setpoint;
 
   public Arm() {
-      armMotor  = new CANSparkMax(9, MotorType.kBrushless);
-      armMotor2  = new CANSparkMax(10, MotorType.kBrushless); 
+      armMotor  = new CANSparkMax(11, MotorType.kBrushless);
+      armMotor2  = new CANSparkMax(65, MotorType.kBrushless); 
       armController = armMotor.getPIDController();
       armController2 = armMotor2.getPIDController();
       armFeedforward = new ArmFeedforward(kS, kG, kV);
