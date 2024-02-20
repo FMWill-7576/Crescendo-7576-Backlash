@@ -34,9 +34,7 @@ public final class Constants
     public static final PIDConstants ANGLE_PID   = new PIDConstants(0.4, 0, 0.01);
   }
  public static final class ArmConstants {
-    public static final int armMotorID = 9 ;
-
-
+  
 
     public static final double armConversionPositionFactor = 360.0/71.0/7.0/2.4923 ;
 

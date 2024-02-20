@@ -30,7 +30,7 @@ intakeConfig();
   }
 
   public void intake(){
-  intakeMotor.set(0.5);
+  intakeMotor.set(0.75);
   }
 
   public void   outake(){ 
@@ -42,7 +42,7 @@ intakeMotor.set(-0.5);
   public void intakeConfig(){
   intakeMotor.restoreFactoryDefaults();
   intakeMotor.enableVoltageCompensation(12);
-  intakeMotor.setSmartCurrentLimit(25);
+  intakeMotor.setSmartCurrentLimit(30);
   intakeMotor.setInverted(false);
   intakeMotor.setIdleMode(IdleMode.kCoast);
   CANSparkMaxUtil.setCANSparkMaxBusUsage(intakeMotor, Usage.kMinimal, false);
