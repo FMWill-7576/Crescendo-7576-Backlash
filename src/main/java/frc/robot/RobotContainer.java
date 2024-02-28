@@ -44,7 +44,8 @@ public class RobotContainer
   private final Intake s_Intake = new Intake();
   private final SwerveSubsystem s_Swerve = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),                                                                      "swerve/neo"));
   private final Arm s_Arm = new Arm();    
-  private final Indexer s_Indexer = new Indexer() ;                                                                                                                                      
+  private final Indexer s_Indexer = new Indexer() ;  
+  private final Shooter s_Shooter = new Shooter();                                                                                                                                    
   // CommandJoystick rotationController = new CommandJoystick(1);
   // Replace with CommandPS4Controller or CommandJoystick if needed
  // CommandJoystick driverController = new CommandJoystick(1);
@@ -101,26 +102,22 @@ public class RobotContainer
         () ->  -MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
         () ->  -driverXbox.getRightX());
 
-    Command manualIntakeCmd = new RunCommand( 
-      () -> s_Intake.manualIntake(operatorXbox.getRightX()), s_Intake);
-
-    Command manualIndexCmd = new RunCommand(
-      () -> s_Indexer.manualIndex(0.0),s_Indexer);
-    
-
+  
 
     s_Swerve.setDefaultCommand(
         !RobotBase.isSimulation() ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngleSim);
 
     
     s_Intake.setDefaultCommand(
-       manualIntakeCmd
-    );
+       s_Intake.run(()-> s_Intake.manualIntake(0.0)));
+
 
     s_Indexer.setDefaultCommand(
-      manualIndexCmd);
+      s_Indexer.run(()-> s_Indexer.manualIndex(0.0)));
 
     s_Arm.setDefaultCommand(s_Arm.run(()-> s_Arm.armHold()));
+
+    s_Shooter.setDefaultCommand(s_Shooter.run(() -> s_Shooter.shootDriveManual(operatorXbox.getLeftTriggerAxis())));
 
     m_chooser.setDefaultOption("exampleAuto", s_Swerve.getAutonomousCommand("New Auto"));
   //  m_chooser.addOption("auto2", s_Swerve.getAutonomousCommand("null"));
@@ -144,17 +141,20 @@ public class RobotContainer
                                    new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
                               ));
   driverXbox.x().whileTrue(new RepeatCommand(new InstantCommand(s_Swerve::lock, s_Swerve)));
-  operatorXbox.x().toggleOnTrue(s_Intake.run(() -> s_Intake.intake()));
+
+  
+  operatorXbox.x().whileTrue(s_Intake.run(() -> s_Intake.intake()));
   //operatorXbox.b().toggleOnTrue(s_Intake.run(() -> s_Intake.stop()));
-  operatorXbox.y().whileTrue(s_Arm.run(() -> s_Arm.armDrive(0.6)));
+  operatorXbox.y().whileTrue(s_Arm.run(() -> s_Arm.armDrive(0.7)));
   //operatorXbox.b().whileTrue(s_Arm.run(() -> s_Arm.armDrive(-0.45)));
  // operatorXbox.a().whileTrue(s_Arm.run(() -> s_Arm.armDrive(-0.3)));
- operatorXbox.a().whileTrue(s_Arm.run(()-> s_Arm.armDrive(-0.6)));
- operatorXbox.povUp().whileTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(55.0))));
- operatorXbox.povLeft().toggleOnTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-20.0))));
- operatorXbox.povDown().whileTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-46.0))));
+ operatorXbox.a().whileTrue(s_Arm.run(()-> s_Arm.armDrive(-0.7)));
+ operatorXbox.povUp().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(55.0))));
+ operatorXbox.povLeft().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-20.0))));
+ operatorXbox.povDown().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-46.0))));
+ operatorXbox.povRight().whileTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(20.0))));
  //operatorXbox.povDown().whileTrue(s_Arm.run(()-> s_Arm.armHold()));
- operatorXbox.x().toggleOnTrue(s_Indexer.run(() -> s_Indexer.manualIndex(0.35)));
+ operatorXbox.x().whileTrue(s_Indexer.run(() -> s_Indexer.manualIndex(1.0)));
 
   }
   /**
