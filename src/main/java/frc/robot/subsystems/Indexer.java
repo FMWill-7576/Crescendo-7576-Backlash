@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.CANSparkMaxUtil;
 import frc.lib.util.CANSparkMaxUtil.Usage;
@@ -23,11 +24,14 @@ public class Indexer extends SubsystemBase {
   /** Creates a new index. */
   public Indexer() {
 indexMotor = new CANSparkMax(10, MotorType.kBrushless);
-beamBreak = new DigitalInput(0);
+//beamBreak = new DigitalInput(0);
 
 indexConfig(); 
-
   }
+  public void manualIndex(double indexSpeed){
+    indexMotor.set(indexSpeed);
+  }
+  
   public void stop(){
   indexMotor.set(0.0);
   }
@@ -41,7 +45,8 @@ indexConfig();
   }
   
   public static boolean hasNote(){
-    return beamBreak.get();
+   // return beamBreak.get();
+   return false;
   }
  
 
@@ -49,9 +54,11 @@ indexConfig();
   public void indexConfig(){
   indexMotor.restoreFactoryDefaults();
   indexMotor.enableVoltageCompensation(12);
-  indexMotor.setSmartCurrentLimit(25);
+  indexMotor.setSmartCurrentLimit(40);
   indexMotor.setInverted(false);
   indexMotor.setIdleMode(IdleMode.kCoast);
+  indexMotor.setClosedLoopRampRate(0.15);
+  indexMotor.setOpenLoopRampRate(0.15);
   CANSparkMaxUtil.setCANSparkMaxBusUsage(indexMotor, Usage.kMinimal, false);
   Timer.delay(0.2);
   indexMotor.burnFlash();
@@ -62,5 +69,8 @@ indexConfig();
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+       SmartDashboard.putNumber("index output duty", indexMotor.getAppliedOutput());
+       SmartDashboard.putNumber("index output amps", indexMotor.getOutputCurrent());
+       SmartDashboard.putNumber("index bus voltage", indexMotor.getBusVoltage());
   }
 }
