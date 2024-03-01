@@ -23,8 +23,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.subsystems.Vision;
+
 import java.io.File;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
+
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
@@ -39,6 +44,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase
 {
+  private final Vision s_Vision = new Vision();
 
   /**
    * Swerve drive object.
@@ -55,6 +61,7 @@ public class SwerveSubsystem extends SubsystemBase
    * @param directory Directory of swerve drive config files.
    */
   public SwerveSubsystem(File directory)
+  
   {
   
 
@@ -69,13 +76,14 @@ public class SwerveSubsystem extends SubsystemBase
     {
       throw new RuntimeException(e);
     }
-    swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
+    swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
     swerveDrive.setCosineCompensator(!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
     setupPathPlanner();
     //swerveDrive.setCosineCompensator(true);
     swerveDrive.setMotorIdleMode(true);
     Timer.delay(0.2);
     swerveDrive.zeroGyro();
+    
   }
 
   /**
@@ -104,7 +112,7 @@ public class SwerveSubsystem extends SubsystemBase
                                          // Translation PID constants
                                          AutonConstants.ANGLE_PID,
                                          // Rotation PID constants
-                                         4.9,
+                                         4.5,
                                          // Max module speed, in m/s
                                          swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(),
                                          // Drive base radius in meters. Distance from robot center to furthest module.
@@ -510,4 +518,14 @@ public class SwerveSubsystem extends SubsystemBase
   {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
   }
+
+
+ public void updateOdometryWithVision(){
+  Optional<EstimatedRobotPose> poseEstimate = s_Vision.getEstimatedGlobalPose();
+
+if (poseEstimate.isPresent()) {
+  swerveDrive.addVisionMeasurement(
+    poseEstimate.get().estimatedPose.toPose2d(), poseEstimate.get().timestampSeconds);
+}
+ }
 }
