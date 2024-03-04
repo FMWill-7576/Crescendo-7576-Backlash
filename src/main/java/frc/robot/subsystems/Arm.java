@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -27,6 +28,7 @@ public class Arm extends SubsystemBase {
   private static double kS = 0.00;
   private static double kG = 0.4;
   private static double kV = 0.0;
+  private static boolean isArmHome;
   public double calculatedkG;
   private ArmFeedforward armFeedforward;
   public static double armSpeedRate =  1.0;
@@ -47,10 +49,12 @@ public class Arm extends SubsystemBase {
   private static double kDt; */
   private ArmFeedforward feedforward;
   private static double setpoint;
+  private DigitalInput limitSwitch;
   // Ks = 0.42 VOLT UNUTMA!!!!
 
   public Arm() {
       armMotor  = new CANSparkMax(11, MotorType.kBrushless);
+      limitSwitch = new DigitalInput(9);
        examplePD = new PowerDistribution(0, ModuleType.kCTRE);
       //armMotor2  = new CANSparkMax(65, MotorType.kBrushless); 
       armController = armMotor.getPIDController();
@@ -69,13 +73,13 @@ public class Arm extends SubsystemBase {
       public void armMotorConfig() { 
         armMotor.restoreFactoryDefaults();
         CANSparkMaxUtil.setCANSparkMaxBusUsage(armMotor, Usage.kPositionOnly,true);
-        armMotor.setSmartCurrentLimit(40);
+        armMotor.setSmartCurrentLimit(45);
         armMotor.setInverted(true);
         armMotor.setIdleMode(IdleMode.kBrake);
         integratedArmEncoder.setPositionConversionFactor((1/64) * (22/68)); 
-        integratedArmEncoder.setPosition(-46.41);
+        integratedArmEncoder.setPosition(-42.612);
         throughbEncoder.setPositionConversionFactor(180/(68/22));
-        throughbEncoder.setPosition(-46.41);   // -47.41
+        throughbEncoder.setPosition(-42.612);   // -46.41
         throughbEncoder.setInverted(true);
         armController.setP(Constants.ArmConstants.armKP);
         armController.setI(Constants.ArmConstants.armKI);
@@ -85,11 +89,11 @@ public class Arm extends SubsystemBase {
         armController.setFeedbackDevice(throughbEncoder);
         armMotor.enableVoltageCompensation(12.0);
         armMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-        armMotor.setSoftLimit(SoftLimitDirection.kForward, 65);
+        armMotor.setSoftLimit(SoftLimitDirection.kForward, 60);
         armMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-        armMotor.setSoftLimit(SoftLimitDirection.kReverse, -47);
+        armMotor.setSoftLimit(SoftLimitDirection.kReverse, -42.8f);
 
-        armMotor.setClosedLoopRampRate(0.15);
+        armMotor.setClosedLoopRampRate(0.12);
         armMotor.setOpenLoopRampRate(0.12);
      
         armController.setOutputRange(-1.0, 1.0);
@@ -116,30 +120,17 @@ public class Arm extends SubsystemBase {
         armSet(Rotation2d.fromDegrees(throughbEncoder.getPosition()));
       }
      
-
+     public boolean isArmHome(){
+      return limitSwitch.get();
+     }
      public void armUp(){
      // armSet(Rotation2d.fromDegrees(150.0));
       armDrive(0.31);
      }
 
-     public void armScore(){
-       armSet(Rotation2d.fromDegrees
-       (36.2));
-      }
 
-     public void armTest2(){
-      armSet(Rotation2d.fromDegrees
-      (20));
-    }
-    public void armPickUp(){
-      armSet(Rotation2d.fromDegrees
-      (14.0));
-    }
-
-    public void armScoreReverse(){
-      armSet(Rotation2d.fromDegrees
-      (140.0));
-
+    public boolean isArmAtSetpoint(){
+      return getArmError() < 0.3;
     }
 
      public void armDrive(double armPercentage){
@@ -153,7 +144,7 @@ public class Arm extends SubsystemBase {
     }
 
      public void armHome(){
-      armSet(Rotation2d.fromDegrees(-48.0));
+      armSet(Rotation2d.fromDegrees(-42.7));
      }
 
      public void armDown(){
@@ -165,6 +156,10 @@ public class Arm extends SubsystemBase {
       armDrive(0.0);
      }
 
+     public double getArmError() {
+      return Math.abs(setpoint - throughbEncoder.getPosition());
+  }
+
 
      public void armReset(){
       throughbEncoder.setPosition(-68.0);
@@ -174,6 +169,13 @@ public class Arm extends SubsystemBase {
 
     @Override
     public void periodic() {
+      
+      if (-44 < throughbEncoder.getPosition() && throughbEncoder.getPosition() < -42.4){
+        isArmHome = true;
+      }
+      else{
+        isArmHome = false;
+      }
   
       // This method will be called once per scheduler run
       SmartDashboard.putNumber("integrated arm encoder" , integratedArmEncoder.getPosition());
@@ -185,5 +187,7 @@ public class Arm extends SubsystemBase {
        SmartDashboard.putNumber("arm output voltage", armMotor.getBusVoltage());
      //  SmartDashboard.putNumber("arm nominal voltage", armMotor.getVoltageCompensationNominalVoltage());
        SmartDashboard.putNumber("pdp voltage", examplePD.getVoltage());
+       SmartDashboard.putBoolean("limit switch", isArmHome);
+
     }
 }

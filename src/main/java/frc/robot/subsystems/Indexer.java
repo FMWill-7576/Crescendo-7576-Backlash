@@ -20,14 +20,15 @@ import frc.lib.util.CANSparkMaxUtil.Usage;
 
 public class Indexer extends SubsystemBase {
   private CANSparkMax indexMotor;
-  private static DigitalInput beamBreak;
+  private  DigitalInput beamBreak;
   /** Creates a new index. */
   public Indexer() {
 indexMotor = new CANSparkMax(10, MotorType.kBrushless);
-//beamBreak = new DigitalInput(0);
+beamBreak = new DigitalInput(1);
 
 indexConfig(); 
-  }
+}
+
   public void manualIndex(double indexSpeed){
     indexMotor.set(indexSpeed);
   }
@@ -44,9 +45,9 @@ indexConfig();
   indexMotor.set(-0.5);
   }
   
-  public static boolean hasNote(){
-   // return beamBreak.get();
-   return false;
+  public boolean hasNote(){
+    return beamBreak.get();
+  
   }
  
 
@@ -65,6 +66,10 @@ indexConfig();
   Timer.delay(0.2);
     }
 
+public boolean isNoteInIndexer() {
+  return !beamBreak.get();
+}
+
 
   @Override
   public void periodic() {
@@ -72,5 +77,7 @@ indexConfig();
        SmartDashboard.putNumber("index output duty", indexMotor.getAppliedOutput());
        SmartDashboard.putNumber("index output amps", indexMotor.getOutputCurrent());
        SmartDashboard.putNumber("index bus voltage", indexMotor.getBusVoltage());
+       SmartDashboard.putBoolean("beam break", isNoteInIndexer());
   }
+
 }
