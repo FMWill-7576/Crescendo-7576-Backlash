@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -19,10 +20,12 @@ import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.IntakeNote;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -39,19 +42,25 @@ public class RobotContainer
 
   // The robot's subsystems and commands are defined here...
   //private final Shooter s_Shooter = new Shooter();
-  //private final LedSubsystem LedSubsystem = new LedSubsystem();
+  private final LedSubsystem s_Led = new LedSubsystem();
  // private final Vision s_Vision = new Vision();
   private final Intake s_Intake = new Intake();
   private final SwerveSubsystem s_Swerve = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),                                                                      "swerve/neo"));
   private final Arm s_Arm = new Arm();    
   private final Indexer s_Indexer = new Indexer() ;  
-  private final Shooter s_Shooter = new Shooter();                                                                                                                                    
+  private final Shooter s_Shooter = new Shooter();
+  private final VictorClimber s_VictorClimber = new VictorClimber();                                                                                                                                     
   // CommandJoystick rotationController = new CommandJoystick(1);
   // Replace with CommandPS4Controller or CommandJoystick if needed
  // CommandJoystick driverController = new CommandJoystick(1);
   // CommandJoystick driverController   = new CommandJoystick(3);//(OperatorConstants.DRIVER_CONTROLLER_PORT);
-  CommandXboxController driverXbox = new CommandXboxController(2);
+  CommandPS5Controller driverXbox = new CommandPS5Controller(1);
   CommandXboxController operatorXbox = new CommandXboxController(0);
+  private SlewRateLimiter translationLimiter  = new SlewRateLimiter(3.2);
+  private SlewRateLimiter strafeLimiter  = new SlewRateLimiter(3.2);
+  private SlewRateLimiter rotationLimiter  = new SlewRateLimiter(3.2);
+  private double speedRate = 1.0;
+
 
 
   SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -63,7 +72,7 @@ public class RobotContainer
     // Configure the trigger bindings
     configureBindings();
 
-    AbsoluteDriveAdv closedAbsoluteDriveAdv = 
+   /*  AbsoluteDriveAdv closedAbsoluteDriveAdv = 
     new AbsoluteDriveAdv(s_Swerve,
       () -> -MathUtil.applyDeadband(driverXbox.getLeftY(),
                                    OperatorConstants.LEFT_Y_DEADBAND),
@@ -74,7 +83,7 @@ public class RobotContainer
       driverXbox.getHID()::getAButtonPressed,
       driverXbox.getHID()::getYButtonPressed,
       driverXbox.getHID()::getBButtonPressed,
-      driverXbox.getHID()::getXButtonPressed);
+      driverXbox.getHID()::getXButtonPressed); */
 
     // Applies deadbands and inverts controls because joysticks
     // are back-right positive while robot
@@ -93,9 +102,9 @@ public class RobotContainer
     // left stick controls translation
     // right stick controls the angular velocity of the robot
     Command driveFieldOrientedAngularVelocity = s_Swerve.driveCommand(
-        () -> 0.4 * -MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
-        () -> 0.4 * -MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> 0.8 * -MathUtil.applyDeadband(driverXbox.getRightX(), OperatorConstants.RIGHT_X_DEADBAND));
+        () -> speedRate * translationLimiter.calculate(-MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND)),
+        () -> speedRate * strafeLimiter.calculate(-MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND)),
+        () -> speedRate * -MathUtil.applyDeadband(driverXbox.getRightX(), OperatorConstants.RIGHT_X_DEADBAND));
 
     Command driveFieldOrientedDirectAngleSim = s_Swerve.simDriveCommand(
         () ->  -MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
@@ -114,10 +123,13 @@ public class RobotContainer
 
     s_Indexer.setDefaultCommand(
       s_Indexer.run(()-> s_Indexer.manualIndex(0.0)));
+      
+         s_VictorClimber.setDefaultCommand(
+      s_VictorClimber.run(()-> s_VictorClimber.manualclimb(0.0)));
 
     s_Arm.setDefaultCommand(s_Arm.run(()-> s_Arm.armHold()));
 
-    s_Shooter.setDefaultCommand(s_Shooter.run(() -> s_Shooter.shootDriveManual(operatorXbox.getLeftTriggerAxis())));
+    s_Shooter.setDefaultCommand(s_Shooter.run(() -> s_Shooter.shooterSet(0)));
 
     m_chooser.setDefaultOption("exampleAuto", s_Swerve.getAutonomousCommand("New Auto"));
   //  m_chooser.addOption("auto2", s_Swerve.getAutonomousCommand("null"));
@@ -134,27 +146,44 @@ public class RobotContainer
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
-    driverXbox.leftBumper().onTrue((new InstantCommand(s_Swerve::zeroGyro)));
+    driverXbox.options().onTrue((new InstantCommand(s_Swerve::zeroGyro)));
    // new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(s_Swerve::addFakeVisionReading));
-    driverXbox.leftStick().whileTrue(
+    driverXbox.L3().whileTrue(
         Commands.deferredProxy(() -> s_Swerve.driveToPose(
                                    new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
                               ));
-  driverXbox.x().whileTrue(new RepeatCommand(new InstantCommand(s_Swerve::lock, s_Swerve)));
+  driverXbox.square().whileTrue(new RepeatCommand(new InstantCommand(s_Swerve::lock, s_Swerve)));
+  driverXbox.L1().onTrue(Commands.runOnce(() -> speedRate = 0.25));
+  driverXbox.L1().onFalse(Commands.runOnce(() -> speedRate = 1.0));
+
+  driverXbox.R1().onTrue(Commands.runOnce(() -> speedRate = 0.50));
+  driverXbox.R1().onFalse(Commands.runOnce(() -> speedRate = 1.0));
+
+
+  driverXbox.L2().whileTrue(
+    new RunCommand(()-> s_Arm.armHome(),s_Arm).onlyIf(() -> !s_Arm.isArmHome()).until(()->s_Arm.isArmHome()).andThen(new IntakeNote(s_Indexer,s_Intake,s_Led)));
 
   
-  operatorXbox.x().whileTrue(s_Intake.run(() -> s_Intake.intake()));
-  //operatorXbox.b().toggleOnTrue(s_Intake.run(() -> s_Intake.stop()));
-  operatorXbox.y().whileTrue(s_Arm.run(() -> s_Arm.armDrive(0.7)));
+  operatorXbox.x().whileTrue(s_Intake.run(() -> s_Intake.manualIntake(0.85)));
+  operatorXbox.rightBumper().whileTrue(s_Shooter.run(() -> s_Shooter.shooterSet(7500)));
+  operatorXbox.b().whileTrue(s_Intake.run(() -> s_Intake.manualIntake(-0.85)));
+  operatorXbox.b().whileTrue(s_Indexer.run(() -> s_Indexer.manualIndex(-0.85)));
+  operatorXbox.rightTrigger().whileTrue(s_Shooter.run(() -> s_Shooter.shooterSet(3000)));
+  operatorXbox.leftTrigger().whileTrue(s_Shooter.run(() -> s_Shooter.shooterSet(1000)));
+  operatorXbox.leftBumper().whileTrue(s_Shooter.run(() -> s_Shooter.shooterSet(6000)));
+  operatorXbox.y().whileTrue(s_Arm.run(() -> s_Arm.armDrive(0.3)));
+  operatorXbox.rightStick().whileTrue(s_VictorClimber.run(() -> s_VictorClimber.manualclimb(0.75)));
+  operatorXbox.leftStick().whileTrue(s_VictorClimber.run(() -> s_VictorClimber.manualclimb(-0.75)));
   //operatorXbox.b().whileTrue(s_Arm.run(() -> s_Arm.armDrive(-0.45)));
  // operatorXbox.a().whileTrue(s_Arm.run(() -> s_Arm.armDrive(-0.3)));
- operatorXbox.a().whileTrue(s_Arm.run(()-> s_Arm.armDrive(-0.7)));
- operatorXbox.povUp().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(55.0))));
- operatorXbox.povLeft().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-20.0))));
- operatorXbox.povDown().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-46.0))));
- operatorXbox.povRight().whileTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(20.0))));
+ operatorXbox.a().whileTrue(s_Arm.run(()-> s_Arm.armDrive(-0.3)));
+ operatorXbox.povUp().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(58.8))));
+ operatorXbox.povLeft().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-26.2))));//-26.2, -20.6
+ operatorXbox.povDown().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-42.7))));
+ operatorXbox.povRight().whileTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(23.8))));
  //operatorXbox.povDown().whileTrue(s_Arm.run(()-> s_Arm.armHold()));
- operatorXbox.x().whileTrue(s_Indexer.run(() -> s_Indexer.manualIndex(1.0)));
+ operatorXbox.x().whileTrue(s_Indexer.run(() -> s_Indexer.manualIndex(0.75)));
+ 
 
   }
   /**
