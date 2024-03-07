@@ -76,7 +76,7 @@ public class Arm extends SubsystemBase {
         armMotor.setSmartCurrentLimit(45);
         armMotor.setInverted(true);
         armMotor.setIdleMode(IdleMode.kBrake);
-        integratedArmEncoder.setPositionConversionFactor((1/64) * (22/68)); 
+       // integratedArmEncoder.setPositionConversionFactor((1/64) * (22/68)); 
         integratedArmEncoder.setPosition(-42.612);
         throughbEncoder.setPositionConversionFactor(180/(68/22));
         throughbEncoder.setPosition(-42.612);   // -46.41

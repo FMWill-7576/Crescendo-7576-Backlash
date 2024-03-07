@@ -38,7 +38,7 @@ public class IntakeNote extends Command {
       s_Indexer.manualIndex(0.5);
       // s_Led.noNote();
     } else {
-      Timer.delay(0.05);
+      Timer.delay(0.07576);
       s_Intake.manualIntake(0.0);
       s_Indexer.manualIndex(0.0);
       //s_Led.yesNote();

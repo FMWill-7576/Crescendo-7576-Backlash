@@ -40,6 +40,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.common.hardware.VisionLEDMode;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
@@ -56,11 +57,13 @@ public class Vision {
 
     public Vision() {
         camera = new PhotonCamera(kCameraName);
+        
+        
 
         photonEstimator =
                 new PhotonPoseEstimator(
                         kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, kRobotToCam);
-        photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+        photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
 
         // ----- Simulation
         if (Robot.isSimulation()) {
@@ -83,6 +86,16 @@ public class Vision {
 
             cameraSim.enableDrawWireframe(true);
         }
+    }
+
+
+  public PhotonCamera getCamera() {
+        return camera;
+    }
+
+
+    public void setLimelightLed(){
+        camera.setLED(VisionLEDMode.kOff);
     }
 
     public PhotonPipelineResult getLatestResult() {

@@ -8,6 +8,9 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
+
+import java.util.function.BooleanSupplier;
+
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -76,7 +79,7 @@ public class Shooter extends SubsystemBase {
     shootController.setP(0.0001);
     shootController.setI(0.0);
     shootController.setD(0.0);
-    shootController.setFF(0.00012);
+    shootController.setFF(0.00013);
     shootController.setIMaxAccum(0.0,0);
     shootController.setIZone(0.0);
     shootControllerDown.setP(0.0001);
@@ -107,6 +110,11 @@ shootMotorUp.set(percentage);
 shootMotorDown.set(percentage);
 }
 
+
+public Boolean isShooterAtSetpoint() {
+    return ( Math.abs(setpoint - integratedUpEncoder.getVelocity()) <= 300);
+}
+
 public void shooterSet(double RPM) {
   downSetpoint=RPM+400;
   setpoint=RPM;
@@ -126,6 +134,26 @@ public void shooterSet(double RPM) {
          
       }
 
+
+
+ public void shooterIdle(double RPM) {;
+  setpoint=RPM;
+
+        shootController.setReference(
+         setpoint,
+         CANSparkMax.ControlType.kVelocity,
+         0
+        );
+
+
+        shootControllerDown.setReference(
+         setpoint,
+         CANSparkMax.ControlType.kVelocity,
+         0
+        );
+         
+      }
+     
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -133,8 +161,11 @@ public void shooterSet(double RPM) {
     SmartDashboard.putNumber("shooter measured rpm up", integratedUpEncoder.getVelocity());
     SmartDashboard.putNumber("shooter measured rpm down", integratedDownEncoder.getVelocity());
     SmartDashboard.putNumber("shooter setpoint rpm", setpoint);
+    SmartDashboard.putNumber("shooter setpoint rpm down", downSetpoint);
     SmartDashboard.putNumber("shooter applied duty", shootMotorUp.getAppliedOutput());
     SmartDashboard.putNumber("shooter bus voltage", shootMotorUp.getBusVoltage());
     SmartDashboard.putNumber("shooter applied amp", shootMotorUp.getOutputCurrent());
   }
+
+
 }

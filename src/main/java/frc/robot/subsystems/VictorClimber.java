@@ -39,15 +39,15 @@ public class VictorClimber extends SubsystemBase {
     rightClimb.set(VictorSPXControlMode.PercentOutput, 0.0);
   }
   public void   manualclimb(double percentage){
-    leftClimb.set(
+     leftClimb.set(
       VictorSPXControlMode.PercentOutput,
      percentage
     );
-   rightClimb.set(
+  rightClimb.set(
     VictorSPXControlMode.PercentOutput, 
     percentage
-    );
-  }
+    ); 
+  } 
 
   public void   outake(){ 
     leftClimb.set(
@@ -70,35 +70,35 @@ public class VictorClimber extends SubsystemBase {
 
 
   public void  strongHold(){ 
-    leftClimb.set(
+   /*  leftClimb.set(
       VictorSPXControlMode.PercentOutput,
      -0.35);
     rightClimb.set(
       VictorSPXControlMode.PercentOutput,
-     -0.3);
+     -0.3);*/
   }
   public void   hold(){
     leftClimb.set(
       VictorSPXControlMode.PercentOutput,
     -0.27
     );
-   rightClimb.set(
+  /*  rightClimb.set(
     VictorSPXControlMode.PercentOutput, -0.22
-    );
+    );*/
   }
 
   public void climbConfig(){
 leftClimb.configFactoryDefault();
 leftClimb.enableVoltageCompensation(true);
 leftClimb.configVoltageCompSaturation(12.0);
-leftClimb.setInverted(false);
+leftClimb.setInverted(true);
 leftClimb.setNeutralMode(NeutralMode.Brake);
 
 
 rightClimb.configFactoryDefault();
 rightClimb.enableVoltageCompensation(true);
 rightClimb.configVoltageCompSaturation(12.0);
-rightClimb.setInverted(false);
+rightClimb.setInverted(true);
 rightClimb.setNeutralMode(NeutralMode.Brake);
 }
 
