@@ -52,6 +52,7 @@ public class Shooter extends SubsystemBase {
     integratedDownEncoder = shootMotorDown.getEncoder();
     //shooterBore = new Encoder(0, 0, false, EncodingType.k1X);
     shooterRelativeBore = shootMotorUp.getAlternateEncoder(2048);
+    setpoint=4000;
     shooterConfig();
   
   }

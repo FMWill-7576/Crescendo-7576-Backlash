@@ -35,11 +35,11 @@ public class IntakeNote extends Command {
   @Override
   public void execute() {
     if (!s_Indexer.isNoteInIndexer()){
-      s_Intake.manualIntake(0.85);
+      s_Intake.manualIntake(0.75);
       s_Indexer.manualIndex(0.5);
       // s_Led.noNote();
     } else {
-      Timer.delay(0.24);
+      Timer.delay(0.15);
       s_Intake.manualIntake(0.0);
       s_Indexer.manualIndex(0.0);
       //s_Led.yesNote();

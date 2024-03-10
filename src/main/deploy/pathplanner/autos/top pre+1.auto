@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7693119645118713,
-      "y": 4.40667200088501
+      "x": 0.7815271019935608,
+      "y": 6.681045055389404
     },
-    "rotation": 121.74579941607031
+    "rotation": 60.008930495798026
   },
   "command": {
     "type": "sequential",
@@ -24,7 +24,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "bottomSide+1.1"
+                  "pathName": "top pre+1.1"
                 }
               },
               {
@@ -39,19 +39,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "bottomSide+1.2"
+            "pathName": "top pre+1.2"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "shootWoofer"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "bottomSide+1.3"
           }
         }
       ]

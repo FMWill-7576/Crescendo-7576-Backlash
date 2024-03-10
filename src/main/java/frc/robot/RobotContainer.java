@@ -79,12 +79,12 @@ public class RobotContainer
   public RobotContainer()
   {
     NamedCommands.registerCommand("runIntake",
-     s_Intake.run(()-> s_Intake.manualIntake(0.85)).until(()->s_Indexer.isNoteInIndexer()));
+     s_Intake.run(()-> s_Intake.manualIntake(0.75)).until(()->s_Indexer.isNoteInIndexer()));
      NamedCommands.registerCommand("shootWoofer",
      s_Shooter.run(()->
-      s_Shooter.shooterSet(3000,3600)).
+      s_Shooter.shooterSet(3500,3750)).
       until(()->s_Shooter.isShooterAtSetpoint()).
-      andThen(s_Indexer.run(()-> s_Indexer.manualIndex(0.65))).
+      andThen(s_Indexer.run(()-> s_Indexer.manualIndex(0.75))).
       until(()->!s_Indexer.isNoteInIndexer()));
 
       NamedCommands.registerCommand("autoAlign",
@@ -164,15 +164,20 @@ public class RobotContainer
 
     m_chooser.setDefaultOption("mid pre+1", s_Swerve.getAutonomousCommand("mid pre+1"));
     SmartDashboard.putData("OTONOM", m_chooser);
-    m_chooser.addOption("deneme 2", s_Swerve.getAutonomousCommand("deneme auto 2"));
-     m_chooser.addOption("deneme 3", s_Swerve.getAutonomousCommand("deneme auto 3"));
       m_chooser.addOption("deneme 6", s_Swerve.getAutonomousCommand("deneme auto 6"));
       m_chooser.addOption("mid pre +1", s_Swerve.getAutonomousCommand("mid pre+1"));
-       m_chooser.addOption("bottom pre+1", s_Swerve.getAutonomousCommand("bottom pre+1"));
-       m_chooser.addOption("mid 4 piece", s_Swerve.getAutonomousCommand("mid 4 piece"));
-        m_chooser.addOption("mid pre", s_Swerve.getAutonomousCommand("mid pre"));
-        m_chooser.addOption("mid pre+chaos", s_Swerve.getAutonomousCommand("mid pre+chaos"));
-            m_chooser.addOption("mid pre+chaos down", s_Swerve.getAutonomousCommand("mid pre+chaos down"));
+      m_chooser.addOption("bottom pre+1", s_Swerve.getAutonomousCommand("bottom pre+1"));
+      m_chooser.addOption("mid 4 piece", s_Swerve.getAutonomousCommand("mid 4 piece"));
+      m_chooser.addOption("mid pre", s_Swerve.getAutonomousCommand("mid pre"));
+      m_chooser.addOption("mid pre+chaos", s_Swerve.getAutonomousCommand("mid pre+chaos"));
+      m_chooser.addOption("mid pre+chaos down", s_Swerve.getAutonomousCommand("mid pre+chaos down"));
+      m_chooser.addOption("bottom pre chaos", s_Swerve.getAutonomousCommand("bottom pre chaos"));
+      m_chooser.addOption("top pre chaos", s_Swerve.getAutonomousCommand("top pre chaos"));
+      m_chooser.addOption("top pre", s_Swerve.getAutonomousCommand("top pre"));
+      m_chooser.addOption("top pre+1", s_Swerve.getAutonomousCommand("top pre+1"));
+      m_chooser.addOption("bottom pre taxi", s_Swerve.getAutonomousCommand("bottom pre taxi"));
+      m_chooser.addOption("bottom pre taxi+1", s_Swerve.getAutonomousCommand("bottom pre taxi+1"));
+      
   }
 
   /**
@@ -218,7 +223,7 @@ public class RobotContainer
    );
 
   
-  operatorXbox.x().whileTrue(s_Intake.run(() -> s_Intake.manualIntake(0.90)));
+  operatorXbox.x().whileTrue(s_Intake.run(() -> s_Intake.manualIntake(0.75)));
 
   operatorXbox.rightBumper().whileTrue(
     s_Shooter.run(() -> s_Shooter.shooterSet(7100,7700)).
@@ -259,6 +264,8 @@ public class RobotContainer
  operatorXbox.povRight().whileTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-8))));
  //operatorXbox.povDown().whileTrue(s_Arm.run(()-> s_Arm.armHold()));
  operatorXbox.x().whileTrue(s_Indexer.run(() -> s_Indexer.manualIndex(0.65)));
+ operatorXbox.start().whileTrue(
+    new RunCommand(()-> s_Arm.armHome(),s_Arm).onlyIf(() -> !s_Arm.isArmHome()).until(()->s_Arm.isArmHome()).andThen(new IntakeNote(s_Indexer,s_Intake,s_Led)));
  
 
   }

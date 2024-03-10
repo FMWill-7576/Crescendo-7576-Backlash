@@ -2,37 +2,31 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3946086168289185,
-      "y": 5.551
+      "x": 0.7180687785148621,
+      "y": 6.7177414894104
     },
-    "rotation": 3.7692136231376645e-30
+    "rotation": 60.116695818509875
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "deneme4 path.1"
+            "name": "shootWoofer"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 2.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "deneme4 path.2"
+            "pathName": "top pre chaos"
           }
         }
       ]
