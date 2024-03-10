@@ -47,7 +47,7 @@ intakeMotor.set(-0.5);
   public void intakeConfig(){
   intakeMotor.restoreFactoryDefaults();
   intakeMotor.enableVoltageCompensation(12);
-  intakeMotor.setSmartCurrentLimit(40);
+  intakeMotor.setSmartCurrentLimit(30);
   intakeMotor.setInverted(false);
   intakeMotor.setIdleMode(IdleMode.kCoast);
   intakeMotor.setClosedLoopRampRate(0.15);

@@ -2,24 +2,24 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 2.0,
-      "y": 7.0
+      "x": 1.3930364847183228,
+      "y": 5.606428146362305
     },
-    "rotation": 0
+    "rotation": 1.9150035556768655e-28
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "New Path"
+            "name": "shootWoofer"
           }
         }
       ]
     }
   },
   "folder": null,
-  "choreoAuto": false
+  "choreoAuto": true
 }

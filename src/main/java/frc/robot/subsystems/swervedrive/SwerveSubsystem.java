@@ -12,6 +12,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -19,6 +20,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
@@ -31,6 +33,7 @@ import java.util.function.DoubleSupplier;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -55,6 +58,8 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public        double      maximumSpeed = 5.2;
 
+
+  private double lastDistance;
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -77,12 +82,14 @@ public class SwerveSubsystem extends SubsystemBase
       throw new RuntimeException(e);
     }
     swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
-    swerveDrive.setCosineCompensator(!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+    //swerveDrive.setCosineCompensator(!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+    swerveDrive.setCosineCompensator(true) ;
     setupPathPlanner();
     //swerveDrive.setCosineCompensator(true);
     swerveDrive.setMotorIdleMode(true);
     Timer.delay(0.2);
     swerveDrive.zeroGyro();
+    s_Vision.getCamera().setPipelineIndex(4);
     
   }
 
@@ -112,7 +119,7 @@ public class SwerveSubsystem extends SubsystemBase
                                          // Translation PID constants
                                          AutonConstants.ANGLE_PID,
                                          // Rotation PID constants
-                                         4.5,
+                                         4.2,
                                          // Max module speed, in m/s
                                          swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(),
                                          // Drive base radius in meters. Distance from robot center to furthest module.
@@ -136,20 +143,53 @@ public class SwerveSubsystem extends SubsystemBase
    * @param camera {@link PhotonCamera} to communicate with.
    * @return A {@link Command} which will run the alignment.
    */
-  public Command aimAtTarget(PhotonCamera camera)
+  public Command aimAtTarget(DoubleSupplier vX,  DoubleSupplier vY)
   {
     return run(() -> {
-      PhotonPipelineResult result = camera.getLatestResult();
+      PhotonPipelineResult result = s_Vision.getCamera().getLatestResult();
       if (result.hasTargets())
       {
-        drive(getTargetSpeeds(0,
-                              0,
-                              Rotation2d.fromDegrees(result.getBestTarget()
-                                                           .getYaw()))); // Not sure if this will work, more math may be required.
+        driveCommand(vX, vY, 
+                              () -> 1*result.getBestTarget().getYaw()); // Not sure if this will work, more math may be required.
       }
     });
   }
 
+
+
+
+    /**
+   * Aim the robot at the target returned by PhotonVision.
+   *
+   * @param camera {@link PhotonCamera} to communicate with.
+   * @return A {@link Command} which will run the alignment.
+   */
+  public Command aimAtTarget2(double vX, double vY)
+  {
+    return run(() -> {
+      PhotonPipelineResult result = s_Vision.getCamera().getLatestResult();
+      if (result.hasTargets())
+      {
+        driveCommand(()-> vX,
+                            ()->  vY,
+                             () -> 360/(-1*(result.getBestTarget()
+                                                           .getYaw()))); // Not sure if this will work, more math may be required.
+      }
+    });
+  }
+public double getVisionDistance(){
+
+  var result = s_Vision.getCamera().getLatestResult();
+  if (result.hasTargets()) {
+                double visionDistance = result.getBestTarget().getBestCameraToTarget().getX();
+                 lastDistance = visionDistance;
+              return  visionDistance;
+             
+                              } 
+  else{
+    return lastDistance;
+  }
+}
   /**
    * Get the path follower with events.
    *
@@ -323,6 +363,7 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
+    SmartDashboard.putNumber("tag distance", getVisionDistance());
   }
 
   @Override

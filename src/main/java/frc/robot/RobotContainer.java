@@ -36,6 +36,7 @@ import java.io.File;
 
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 /**
@@ -51,7 +52,7 @@ public class RobotContainer
   private final LedSubsystem s_Led = new LedSubsystem();
   private final Vision s_Vision = new Vision();
   private final Intake s_Intake = new Intake();
-  private final SwerveSubsystem s_Swerve = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),                                                                      "swerve/neo"));
+  public final SwerveSubsystem s_Swerve = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),                                                                      "swerve/neo"));
   private final Arm s_Arm = new Arm();    
   private final Indexer s_Indexer = new Indexer() ;  
   private final Shooter s_Shooter = new Shooter();
@@ -66,6 +67,8 @@ public class RobotContainer
   private SlewRateLimiter strafeLimiter  = new SlewRateLimiter(3.2);
   private SlewRateLimiter rotationLimiter  = new SlewRateLimiter(3.2);
   private double speedRate = 1.0;
+  
+ 
 
 
 
@@ -75,6 +78,24 @@ public class RobotContainer
    */
   public RobotContainer()
   {
+    NamedCommands.registerCommand("runIntake",
+     s_Intake.run(()-> s_Intake.manualIntake(0.85)).until(()->s_Indexer.isNoteInIndexer()));
+     NamedCommands.registerCommand("shootWoofer",
+     s_Shooter.run(()->
+      s_Shooter.shooterSet(3000,3600)).
+      until(()->s_Shooter.isShooterAtSetpoint()).
+      andThen(s_Indexer.run(()-> s_Indexer.manualIndex(0.65))).
+      until(()->!s_Indexer.isNoteInIndexer()));
+
+      NamedCommands.registerCommand("autoAlign",
+      new autoShoot(s_Indexer, s_Arm, s_Led, s_Swerve, s_Shooter));
+
+
+
+
+
+
+    
     // Configure the trigger bindings
     configureBindings();
 
@@ -135,17 +156,23 @@ public class RobotContainer
 
     s_Arm.setDefaultCommand(s_Arm.run(()-> s_Arm.armHold()));
 
-    s_Shooter.setDefaultCommand(s_Shooter.run(() -> s_Shooter.shooterIdle(200)));
+    s_Shooter.setDefaultCommand(s_Shooter.run(() -> s_Shooter.shooterIdle()));
 
    // Load a Choreo trajectory as a PathPlannerPath
      PathPlannerPath exampleChoreoTraj = PathPlannerPath.fromChoreoTrajectory("deneme path");
     ChoreoTrajectory traj = Choreo.getTrajectory("deneme path"); //
 
-    m_chooser.setDefaultOption("deneme path", s_Swerve.getAutonomousCommand("deneme auto"));
+    m_chooser.setDefaultOption("mid pre+1", s_Swerve.getAutonomousCommand("mid pre+1"));
     SmartDashboard.putData("OTONOM", m_chooser);
     m_chooser.addOption("deneme 2", s_Swerve.getAutonomousCommand("deneme auto 2"));
      m_chooser.addOption("deneme 3", s_Swerve.getAutonomousCommand("deneme auto 3"));
       m_chooser.addOption("deneme 6", s_Swerve.getAutonomousCommand("deneme auto 6"));
+      m_chooser.addOption("mid pre +1", s_Swerve.getAutonomousCommand("mid pre+1"));
+       m_chooser.addOption("bottom pre+1", s_Swerve.getAutonomousCommand("bottom pre+1"));
+       m_chooser.addOption("mid 4 piece", s_Swerve.getAutonomousCommand("mid 4 piece"));
+        m_chooser.addOption("mid pre", s_Swerve.getAutonomousCommand("mid pre"));
+        m_chooser.addOption("mid pre+chaos", s_Swerve.getAutonomousCommand("mid pre+chaos"));
+            m_chooser.addOption("mid pre+chaos down", s_Swerve.getAutonomousCommand("mid pre+chaos down"));
   }
 
   /**
@@ -183,30 +210,53 @@ public class RobotContainer
   driverPS5.L2().whileTrue(
     new RunCommand(()-> s_Arm.armHome(),s_Arm).onlyIf(() -> !s_Arm.isArmHome()).until(()->s_Arm.isArmHome()).andThen(new IntakeNote(s_Indexer,s_Intake,s_Led)));
 
- // driverPS5.R2().whileTrue(
- //   new autoShoot(s_Indexer, s_Arm, s_Led, s_Swerve).
- //   onlyIf(() -> s_Indexer.isNoteInIndexer()).
- //   until(() -> s_Shooter.isShooterAtSetpoint()).
- //   andThen(() ->s_Indexer.manualIndex(0.65)));
+  driverPS5.circle().whileTrue(
+    new autoShoot(s_Indexer, s_Arm, s_Led, s_Swerve,s_Shooter)
+  // onlyIf(() -> s_Indexer.isNoteInIndexer()).
+   // until(() -> s_Shooter.isShooterAtSetpoint()).
+   // andThen(() ->s_Indexer.manualIndex(0.65))
+   );
 
   
-  operatorXbox.x().whileTrue(s_Intake.run(() -> s_Intake.manualIntake(0.85)));
-  operatorXbox.rightBumper().whileTrue(s_Shooter.run(() -> s_Shooter.shooterSet(7500)));
+  operatorXbox.x().whileTrue(s_Intake.run(() -> s_Intake.manualIntake(0.90)));
+
+  operatorXbox.rightBumper().whileTrue(
+    s_Shooter.run(() -> s_Shooter.shooterSet(7100,7700)).
+    until(() -> s_Shooter.isShooterAtSetpoint()).
+    andThen(s_Indexer.run(() ->s_Indexer.manualIndex(0.65))));
+
   operatorXbox.b().whileTrue(s_Intake.run(() -> s_Intake.manualIntake(-0.85)));
+
   operatorXbox.b().whileTrue(s_Indexer.run(() -> s_Indexer.manualIndex(-0.85)));
-  operatorXbox.rightTrigger().whileTrue(s_Shooter.run(() -> s_Shooter.shooterSet(3000)));
-  operatorXbox.leftTrigger().whileTrue(s_Shooter.run(() -> s_Shooter.shooterSet(4000)));
-  operatorXbox.leftBumper().whileTrue(s_Shooter.run(() -> s_Shooter.shooterSet(6000)));
+
+  
+  operatorXbox.rightTrigger().whileTrue(
+    s_Shooter.run(() -> s_Shooter.shooterSet(3000,3300)).
+    until(() -> s_Shooter.isShooterAtSetpoint()).
+    andThen(s_Indexer.run(() ->s_Indexer.manualIndex(0.65))));
+
+  operatorXbox.leftTrigger().whileTrue(
+    s_Shooter.run(() -> s_Shooter.shooterSet(4200,4700)).
+    until(() -> s_Shooter.isShooterAtSetpoint()).
+   andThen(s_Indexer.run(() ->s_Indexer.manualIndex(0.65))));
+
+  operatorXbox.leftBumper().whileTrue(
+    s_Shooter.run(() -> s_Shooter.shooterSet(6000,6600)).
+    until(() -> s_Shooter.isShooterAtSetpoint()).
+    andThen(s_Indexer.run(() ->s_Indexer.manualIndex(0.65))));
+
   operatorXbox.y().whileTrue(s_Arm.run(() -> s_Arm.armDrive(0.3)));
+
   operatorXbox.rightStick().whileTrue(s_VictorClimber.run(() -> s_VictorClimber.manualclimb(1.0)));
+
   operatorXbox.leftStick().whileTrue(s_VictorClimber.run(() -> s_VictorClimber.manualclimb(-1.0)));
   //operatorXbox.b().whileTrue(s_Arm.run(() -> s_Arm.armDrive(-0.45)));
  // operatorXbox.a().whileTrue(s_Arm.run(() -> s_Arm.armDrive(-0.3)));
  operatorXbox.a().whileTrue(s_Arm.run(()-> s_Arm.armDrive(-0.3)));
  operatorXbox.povUp().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(51.8))));
- operatorXbox.povLeft().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-26.2))));//-26.2, -20.6
- operatorXbox.povDown().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-42.7))));
- operatorXbox.povRight().whileTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(23.8))));
+ operatorXbox.povLeft().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-16.4))));//-26.2, -20.6
+ operatorXbox.povDown().onTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-40.7))));
+ operatorXbox.povRight().whileTrue(s_Arm.run(()-> s_Arm.armSet(Rotation2d.fromDegrees(-8))));
  //operatorXbox.povDown().whileTrue(s_Arm.run(()-> s_Arm.armHold()));
  operatorXbox.x().whileTrue(s_Indexer.run(() -> s_Indexer.manualIndex(0.65)));
  

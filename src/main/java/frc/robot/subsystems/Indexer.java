@@ -52,7 +52,7 @@ indexConfig();
   public void indexConfig(){
   indexMotor.restoreFactoryDefaults();
   indexMotor.enableVoltageCompensation(12);
-  indexMotor.setSmartCurrentLimit(40);
+  indexMotor.setSmartCurrentLimit(30);
   indexMotor.setInverted(false);
   indexMotor.setIdleMode(IdleMode.kCoast);
   indexMotor.setClosedLoopRampRate(0.15);

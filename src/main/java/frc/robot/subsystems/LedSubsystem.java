@@ -61,20 +61,19 @@ public class LedSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(Indexer.hasNote()){
    // Fill the buffer with a rainbow
     rainbow();
     // Set the LEDs
     led.setData(ledBuffer);
     }
-  }
+  
 
 
 public void disabledPeriodic() {
     // Fill the buffer with a rainbow
-    rainbow();
+   rainbow();
     // Set the LEDs
-    led.setData(ledBuffer);
+   led.setData(ledBuffer);
   }
       
 }

@@ -1,0 +1,31 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.3799116611480713,
+      "y": 5.552
+    },
+    "rotation": 5.625758755014917e-27
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "shootWoofer"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "mid pre taxi"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}

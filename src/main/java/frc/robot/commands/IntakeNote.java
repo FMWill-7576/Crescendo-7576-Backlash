@@ -20,6 +20,7 @@ public class IntakeNote extends Command {
     this.s_Indexer = s_Indexer;
     this.s_Intake = s_Intake;
     this.s_Led = s_Led;
+
     addRequirements(s_Indexer,s_Led,s_Intake);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -38,7 +39,7 @@ public class IntakeNote extends Command {
       s_Indexer.manualIndex(0.5);
       // s_Led.noNote();
     } else {
-      Timer.delay(0.07576);
+      Timer.delay(0.24);
       s_Intake.manualIntake(0.0);
       s_Indexer.manualIndex(0.0);
       //s_Led.yesNote();

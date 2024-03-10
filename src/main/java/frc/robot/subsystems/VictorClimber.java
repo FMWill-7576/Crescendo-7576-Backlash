@@ -45,7 +45,7 @@ public class VictorClimber extends SubsystemBase {
     );
   rightClimb.set(
     VictorSPXControlMode.PercentOutput, 
-    percentage
+   - percentage
     ); 
   } 
 

@@ -79,13 +79,13 @@ public class Shooter extends SubsystemBase {
     shootController.setP(0.0001);
     shootController.setI(0.0);
     shootController.setD(0.0);
-    shootController.setFF(0.00013);
+    shootController.setFF(0.000118);
     shootController.setIMaxAccum(0.0,0);
     shootController.setIZone(0.0);
     shootControllerDown.setP(0.0001);
     shootControllerDown.setI(0.0);
     shootControllerDown.setD(0.0);
-    shootControllerDown.setFF(0.00012);
+    shootControllerDown.setFF(0.000115);
     shootControllerDown.setIMaxAccum(0.0,0);
     shootControllerDown.setIZone(0.0);
     shootMotorUp.enableVoltageCompensation(12.0);
@@ -112,11 +112,13 @@ shootMotorDown.set(percentage);
 
 
 public Boolean isShooterAtSetpoint() {
-    return ( Math.abs(setpoint - integratedUpEncoder.getVelocity()) <= 300);
-}
 
-public void shooterSet(double RPM) {
-  downSetpoint=RPM+400;
+   return  Math.abs((integratedUpEncoder.getVelocity()-setpoint)) <=200 ; 
+  }
+
+
+public void shooterSet(double RPM,double downRPM) {
+  downSetpoint=downRPM;
   setpoint=RPM;
 
         shootController.setReference(
@@ -136,18 +138,17 @@ public void shooterSet(double RPM) {
 
 
 
- public void shooterIdle(double RPM) {;
-  setpoint=RPM;
+ public void shooterIdle() {
 
         shootController.setReference(
-         setpoint,
+         300,
          CANSparkMax.ControlType.kVelocity,
          0
         );
 
 
         shootControllerDown.setReference(
-         setpoint,
+         300,
          CANSparkMax.ControlType.kVelocity,
          0
         );
