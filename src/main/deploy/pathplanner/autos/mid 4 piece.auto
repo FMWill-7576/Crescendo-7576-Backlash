@@ -3,9 +3,9 @@
   "startingPose": {
     "position": {
       "x": 1.34709894657135,
-      "y": 5.5319952964782715
+      "y": 5.54
     },
-    "rotation": 1.0905540556928562e-28
+    "rotation": 6.880743991670529e-34
   },
   "command": {
     "type": "sequential",
@@ -24,7 +24,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 1.2
+                  "waitTime": 2.0
                 }
               },
               {
@@ -156,9 +156,65 @@
           }
         },
         {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "mid 4 piece.7"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "runIntake"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "mid 4 piece.8"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "shootWoofer"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "mid 4 piece.9"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "mid 4 piece.10"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "runIntake"
+                }
+              }
+            ]
           }
         }
       ]

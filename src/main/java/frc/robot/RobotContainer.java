@@ -79,10 +79,10 @@ public class RobotContainer
   public RobotContainer()
   {
     NamedCommands.registerCommand("runIntake",
-     s_Intake.run(()-> s_Intake.manualIntake(0.75)).until(()->s_Indexer.isNoteInIndexer()));
+     s_Intake.run(()-> s_Intake.manualIntake(0.85)).until(()->s_Indexer.isNoteInIndexer()));
      NamedCommands.registerCommand("shootWoofer",
      s_Shooter.run(()->
-      s_Shooter.shooterSet(3500,3750)).
+      s_Shooter.shooterSet(5500,5750)).
       until(()->s_Shooter.isShooterAtSetpoint()).
       andThen(s_Indexer.run(()-> s_Indexer.manualIndex(0.75))).
       until(()->!s_Indexer.isNoteInIndexer()));
@@ -145,11 +145,11 @@ public class RobotContainer
 
     
     s_Intake.setDefaultCommand(
-       s_Intake.run(()-> s_Intake.manualIntake(0.0)));
+       s_Intake.run(()-> s_Intake.manualIntake( -MathUtil.applyDeadband(operatorXbox.getLeftY(),0.1))));
 
 
     s_Indexer.setDefaultCommand(
-      s_Indexer.run(()-> s_Indexer.manualIndex(0.0)));
+      s_Indexer.run(()-> s_Indexer.manualIndex( -MathUtil.applyDeadband(operatorXbox.getLeftY(),0.1))));
       
          s_VictorClimber.setDefaultCommand(
       s_VictorClimber.run(()-> s_VictorClimber.manualclimb(0.0)));
@@ -177,6 +177,7 @@ public class RobotContainer
       m_chooser.addOption("top pre+1", s_Swerve.getAutonomousCommand("top pre+1"));
       m_chooser.addOption("bottom pre taxi", s_Swerve.getAutonomousCommand("bottom pre taxi"));
       m_chooser.addOption("bottom pre taxi+1", s_Swerve.getAutonomousCommand("bottom pre taxi+1"));
+      m_chooser.addOption("bottom pre chaos2", s_Swerve.getAutonomousCommand("bottom pre chaos2"));
       
   }
 
@@ -233,6 +234,7 @@ public class RobotContainer
   operatorXbox.b().whileTrue(s_Intake.run(() -> s_Intake.manualIntake(-0.85)));
 
   operatorXbox.b().whileTrue(s_Indexer.run(() -> s_Indexer.manualIndex(-0.85)));
+  operatorXbox.b().whileTrue(s_Shooter.run(() -> s_Shooter.shooterSet(-400,-400)));
 
   
   operatorXbox.rightTrigger().whileTrue(
