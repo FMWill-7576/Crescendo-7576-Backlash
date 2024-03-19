@@ -56,7 +56,8 @@ public class RobotContainer
   private final Arm s_Arm = new Arm();    
   private final Indexer s_Indexer = new Indexer() ;  
   private final Shooter s_Shooter = new Shooter();
-  private final VictorClimber s_VictorClimber = new VictorClimber();                                                                                                                                     
+ // private final VictorClimber s_VictorClimber = new VictorClimber();  
+  private final Climber s_Climber = new Climber();                                                                                                                                   
   // CommandJoystick rotationController = new CommandJoystick(1);
   // Replace with CommandPS4Controller or CommandJoystick if needed
  // CommandJoystick driverController = new CommandJoystick(1);
@@ -151,8 +152,8 @@ public class RobotContainer
     s_Indexer.setDefaultCommand(
       s_Indexer.run(()-> s_Indexer.manualIndex( -MathUtil.applyDeadband(operatorXbox.getLeftY(),0.1))));
       
-         s_VictorClimber.setDefaultCommand(
-      s_VictorClimber.run(()-> s_VictorClimber.manualclimb(0.0)));
+         s_Climber.setDefaultCommand(
+      s_Climber.run(()-> s_Climber.manualClimb(MathUtil.applyDeadband(operatorXbox.getRightX(),0.1))));
 
     s_Arm.setDefaultCommand(s_Arm.run(()-> s_Arm.armHold()));
 
@@ -224,7 +225,7 @@ public class RobotContainer
    );
 
   
-  operatorXbox.x().whileTrue(s_Intake.run(() -> s_Intake.manualIntake(0.75)));
+  operatorXbox.x().whileTrue(s_Intake.run(() -> s_Intake.manualIntake(0.85)));
 
   operatorXbox.rightBumper().whileTrue(
     s_Shooter.run(() -> s_Shooter.shooterSet(7100,7700)).
@@ -233,30 +234,31 @@ public class RobotContainer
 
   operatorXbox.b().whileTrue(s_Intake.run(() -> s_Intake.manualIntake(-0.85)));
 
-  operatorXbox.b().whileTrue(s_Indexer.run(() -> s_Indexer.manualIndex(-0.85)));
-  operatorXbox.b().whileTrue(s_Shooter.run(() -> s_Shooter.shooterSet(-400,-400)));
+  operatorXbox.b().whileTrue(s_Indexer.run(() -> s_Indexer.manualIndex(-0.35)));
+  operatorXbox.b().whileTrue(s_Shooter.run(() -> s_Shooter.shooterSet(-1200,-1200)));
 
   
   operatorXbox.rightTrigger().whileTrue(
-    s_Shooter.run(() -> s_Shooter.shooterSet(3000,3300)).
-    until(() -> s_Shooter.isShooterAtSetpoint()).
-    andThen(s_Indexer.run(() ->s_Indexer.manualIndex(0.65))));
+    s_Shooter.run(() -> s_Shooter.shooterSet(1200,1500)).
+   until(() -> s_Shooter.isShooterAtSetpoint()).
+    andThen(s_Indexer.run(() ->s_Indexer.manualIndex(0.75)))
+    );
 
   operatorXbox.leftTrigger().whileTrue(
     s_Shooter.run(() -> s_Shooter.shooterSet(4200,4700)).
     until(() -> s_Shooter.isShooterAtSetpoint()).
-   andThen(s_Indexer.run(() ->s_Indexer.manualIndex(0.65))));
+   andThen(s_Indexer.run(() ->s_Indexer.manualIndex(0.75))));
 
   operatorXbox.leftBumper().whileTrue(
     s_Shooter.run(() -> s_Shooter.shooterSet(6000,6600)).
     until(() -> s_Shooter.isShooterAtSetpoint()).
-    andThen(s_Indexer.run(() ->s_Indexer.manualIndex(0.65))));
+    andThen(s_Indexer.run(() ->s_Indexer.manualIndex(0.75))));
 
   operatorXbox.y().whileTrue(s_Arm.run(() -> s_Arm.armDrive(0.3)));
 
-  operatorXbox.rightStick().whileTrue(s_VictorClimber.run(() -> s_VictorClimber.manualclimb(1.0)));
+  operatorXbox.rightStick().whileTrue(s_Climber.run(() -> s_Climber.manualClimb(1.0)));
 
-  operatorXbox.leftStick().whileTrue(s_VictorClimber.run(() -> s_VictorClimber.manualclimb(-1.0)));
+  operatorXbox.leftStick().whileTrue(s_Climber.run(() -> s_Climber.manualClimb(-1.0)));
   //operatorXbox.b().whileTrue(s_Arm.run(() -> s_Arm.armDrive(-0.45)));
  // operatorXbox.a().whileTrue(s_Arm.run(() -> s_Arm.armDrive(-0.3)));
  operatorXbox.a().whileTrue(s_Arm.run(()-> s_Arm.armDrive(-0.3)));

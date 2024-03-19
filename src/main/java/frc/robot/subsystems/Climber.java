@@ -19,8 +19,8 @@ public class Climber extends SubsystemBase {
 
   /** Creates a new Climber. */
   public Climber() {
-      climbMotorLeft  = new CANSparkMax(14, MotorType.kBrushless);
-      climbMotorRight  = new CANSparkMax(15, MotorType.kBrushless); 
+      climbMotorLeft  = new CANSparkMax(16, MotorType.kBrushless);
+      climbMotorRight  = new CANSparkMax(17, MotorType.kBrushless); 
   climbMotorConfig();
   }
 
@@ -51,7 +51,10 @@ public class Climber extends SubsystemBase {
 
    }
 
-
+public void manualClimb(double percentage){
+  climbMotorLeft.set(percentage);
+  climbMotorRight.set(percentage);
+}
    public void climbDown(){
     climbMotorLeft.set(-0.5);
     climbMotorRight.set(-0.5);

@@ -19,12 +19,12 @@ public class LedSubsystem extends SubsystemBase {
   public LedSubsystem() {
     // PWM port 9
     // Must be a PWM header, not MXP or DIO
-    led = new AddressableLED(9);
+    led = new AddressableLED(0);
 
     // Reuse buffer
     // Default to a length of 60, start empty output
     // Length is expensive to set, so only set it once, then just update data
-    ledBuffer = new AddressableLEDBuffer(60);
+    ledBuffer = new AddressableLEDBuffer(300);
     led.setLength(ledBuffer.getLength());
 
     // Set the data
@@ -51,20 +51,21 @@ public class LedSubsystem extends SubsystemBase {
 
   private void orange(){
         for (var i = 0; i < ledBuffer.getLength(); i++) {
-      final var hue = (m_rainbowFirstPixelHue + (i * 180 / ledBuffer.getLength())) % 180;
+      //final var hue = (m_rainbowFirstPixelHue + (i * 180 / ledBuffer.getLength())) % 180;
       // Set the value
-      ledBuffer.setHSV(i, 27, 255, 128);
+      ledBuffer.setRGB(i, 2000,3, 5);
     }
-    m_orangeFirstPixelHue +=3;
-    m_orangeFirstPixelHue %= 255;
+     led.setData(ledBuffer);
+    //m_orangeFirstPixelHue +=3;
+    //m_orangeFirstPixelHue %= 255;
   }
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
    // Fill the buffer with a rainbow
-    rainbow();
+    orange();
     // Set the LEDs
-    led.setData(ledBuffer);
+    //led.setData(ledBuffer);
     }
   
 
