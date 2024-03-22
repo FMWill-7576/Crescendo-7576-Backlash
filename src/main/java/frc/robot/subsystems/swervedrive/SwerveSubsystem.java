@@ -363,7 +363,7 @@ public double getVisionDistance(){
   @Override
   public void periodic()
   {
-    SmartDashboard.putNumber("tag distance", getVisionDistance());
+    //SmartDashboard.putNumber("tag distance", getVisionDistance());
   }
 
   @Override

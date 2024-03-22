@@ -121,7 +121,7 @@ public class Arm extends SubsystemBase {
       }
      
      public boolean isArmHome(){
-      return limitSwitch.get();
+      return !limitSwitch.get();
      }
      public void armUp(){
      // armSet(Rotation2d.fromDegrees(150.0));
@@ -130,7 +130,7 @@ public class Arm extends SubsystemBase {
 
 
     public boolean isArmAtSetpoint(){
-      return getArmError() < 0.3;
+      return getArmError() < 0.45;
     }
 
      public void armDrive(double armPercentage){
@@ -187,7 +187,7 @@ public class Arm extends SubsystemBase {
        SmartDashboard.putNumber("arm output voltage", armMotor.getBusVoltage());
      //  SmartDashboard.putNumber("arm nominal voltage", armMotor.getVoltageCompensationNominalVoltage());
        SmartDashboard.putNumber("pdp voltage", examplePD.getVoltage());
-       SmartDashboard.putBoolean("limit switch", isArmHome);
+       SmartDashboard.putBoolean("limit switch", isArmHome());
 
     }
 }

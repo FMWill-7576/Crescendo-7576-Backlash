@@ -11,6 +11,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.AnalogTrigger;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,11 +24,24 @@ public class Indexer extends SubsystemBase {
   private CANSparkMax indexMotor;
   private  DigitalInput beamBreak;
   private  DigitalInput beamBreak2;
+  private AnalogTrigger trigger;
+  private AnalogInput diffuser;
+  private AnalogTrigger trigger1;
   /** Creates a new index. */
   public Indexer() {
 indexMotor = new CANSparkMax(10, MotorType.kBrushless);
-beamBreak = new DigitalInput(0);
-beamBreak2 = new DigitalInput(1);
+// beamBreak = new DigitalInput(2);
+beamBreak2 = new DigitalInput(3);
+// Initializes an AnalogTrigger on port 0
+//trigger = new AnalogTrigger(3);
+diffuser = new AnalogInput(3);
+
+// Initializes an AnalogInput on port 1 and enables 2-bit oversampling
+//AnalogInput input = new AnalogInput(3);
+//input.setAverageBits(2);
+
+// Initializes an AnalogTrigger using the above input
+//trigger1 = new AnalogTrigger(3);
 
 indexConfig(); 
 }
@@ -64,7 +79,8 @@ indexConfig();
     }
 
 public boolean isNoteInIndexer() {
-  return !beamBreak.get();
+ // return !trigger.getTriggerState();
+ return diffuser.getVoltage()>4.0 ;
 }
 
 public boolean beemBreak2(){
@@ -80,6 +96,13 @@ public boolean beemBreak2(){
        SmartDashboard.putNumber("index bus voltage", indexMotor.getBusVoltage());
        SmartDashboard.putBoolean("beam break", isNoteInIndexer());
        SmartDashboard.putBoolean("beam break2", beemBreak2());
+       SmartDashboard.putNumber("analog", diffuser.getValue());
+       SmartDashboard.putNumber("analog2", diffuser.getVoltage());
+       SmartDashboard.putNumber("analog3", diffuser.getAverageVoltage());
+       SmartDashboard.putNumber("analog4", diffuser.getAverageValue());
+       
+  }
+  
   }
 
-}
+

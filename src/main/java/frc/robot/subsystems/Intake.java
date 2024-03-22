@@ -46,12 +46,12 @@ intakeMotor.set(-0.5);
 
   public void intakeConfig(){
   intakeMotor.restoreFactoryDefaults();
-  intakeMotor.enableVoltageCompensation(12);
-  intakeMotor.setSmartCurrentLimit(30);
+ // intakeMotor.enableVoltageCompensation(12);
+  intakeMotor.setSmartCurrentLimit(43);
   intakeMotor.setInverted(false);
   intakeMotor.setIdleMode(IdleMode.kCoast);
-  intakeMotor.setClosedLoopRampRate(0.15);
-  intakeMotor.setOpenLoopRampRate(0.15);
+  intakeMotor.setClosedLoopRampRate(0.1);
+  intakeMotor.setOpenLoopRampRate(0.1);
   CANSparkMaxUtil.setCANSparkMaxBusUsage(intakeMotor, Usage.kMinimal, false);
   Timer.delay(0.2);
   intakeMotor.burnFlash();

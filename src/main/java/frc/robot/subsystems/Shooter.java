@@ -142,14 +142,14 @@ public void shooterSet(double RPM,double downRPM) {
  public void shooterIdle() {
 
         shootController.setReference(
-         300,
+         400,
          CANSparkMax.ControlType.kVelocity,
          0
         );
 
 
         shootControllerDown.setReference(
-         300,
+         400,
          CANSparkMax.ControlType.kVelocity,
          0
         );
