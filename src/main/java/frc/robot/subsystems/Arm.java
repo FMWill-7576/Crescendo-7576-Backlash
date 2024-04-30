@@ -121,7 +121,8 @@ public class Arm extends SubsystemBase {
       }
      
      public boolean isArmHome(){
-      return !limitSwitch.get();
+      //return !limitSwitch.get();
+      return Math.abs(-42.612 - throughbEncoder.getPosition())<0.45;
      }
      public void armUp(){
      // armSet(Rotation2d.fromDegrees(150.0));
@@ -145,6 +146,7 @@ public class Arm extends SubsystemBase {
 
      public void armHome(){
       armSet(Rotation2d.fromDegrees(-42.7));
+      
      }
 
      public void armDown(){

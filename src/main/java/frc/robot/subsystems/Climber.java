@@ -41,24 +41,35 @@ public class Climber extends SubsystemBase {
     Timer.delay(0.2);
     climbMotorLeft.burnFlash();
     climbMotorRight.burnFlash();
+    climbMotorLeft.setOpenLoopRampRate(0.1);
+    climbMotorRight.setOpenLoopRampRate(0.1);
     Timer.delay(0.2);
    
   }
 
    public void climbUp(){
-    climbMotorLeft.set(0.5);
-    climbMotorRight.set(0.5);
+    climbMotorLeft.set(0.9);
+    climbMotorRight.set(-0.9);
 
    }
 
 public void manualClimb(double percentage){
   climbMotorLeft.set(percentage);
-  climbMotorRight.set(percentage);
+  climbMotorRight.set(-percentage);
 }
    public void climbDown(){
-    climbMotorLeft.set(-0.5);
-    climbMotorRight.set(-0.5);
+    climbMotorLeft.set(-0.9);
+    climbMotorRight.set(+0.9);
 
+   }
+
+   public void leftClimb(){
+    climbMotorLeft.set(-0.5);
+
+   }
+
+   public void leftClimbUp(){
+    climbMotorLeft.set(0.5);
    }
   @Override
   public void periodic() {

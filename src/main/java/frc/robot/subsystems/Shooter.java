@@ -65,8 +65,8 @@ public class Shooter extends SubsystemBase {
     shootControllerDown.setFeedbackDevice(integratedDownEncoder);
     CANSparkMaxUtil.setCANSparkMaxBusUsage(shootMotorUp, Usage.kVelocityOnly,true);
     CANSparkMaxUtil.setCANSparkMaxBusUsage(shootMotorDown, Usage.kVelocityOnly,true);
-    shootMotorUp.setSmartCurrentLimit(40);
-    shootMotorDown.setSmartCurrentLimit(40);
+    shootMotorUp.setSmartCurrentLimit(50);
+    shootMotorDown.setSmartCurrentLimit(50);
     shootMotorUp.setInverted(false);
     shootMotorDown.setInverted(false);
     shootMotorUp.setIdleMode(IdleMode.kCoast);
@@ -142,14 +142,14 @@ public void shooterSet(double RPM,double downRPM) {
  public void shooterIdle() {
 
         shootController.setReference(
-         400,
+         800,
          CANSparkMax.ControlType.kVelocity,
          0
         );
 
 
         shootControllerDown.setReference(
-         400,
+         800,
          CANSparkMax.ControlType.kVelocity,
          0
         );

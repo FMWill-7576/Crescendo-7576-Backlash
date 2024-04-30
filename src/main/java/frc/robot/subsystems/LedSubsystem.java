@@ -125,7 +125,7 @@ public class LedSubsystem extends SubsystemBase {
         ledBuffer.setRGB(
                  i,
                 interpolate(180, 255, interpolation),
-                interpolate(0, 0, interpolation),
+                interpolate(20, 0, interpolation),
                 interpolate(0, 0, interpolation)
         );
        }

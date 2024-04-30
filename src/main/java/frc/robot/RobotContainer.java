@@ -9,6 +9,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
@@ -82,6 +83,9 @@ public class RobotContainer
    */
   public RobotContainer()
   {
+    DriverStation.Alliance color;
+    color= DriverStation.getAlliance().get();
+    int isBlueAlliance= DriverStation.Alliance.Blue==color?1 :-1;
    // NamedCommands.registerCommand("runIntake",
    //  s_Intake.run(()-> s_Intake.manualIntake(0.95)).until(()->s_Indexer.isNoteInIndexer()));
    NamedCommands.registerCommand("runIntake", new IntakeNote(s_Indexer, s_Intake, s_Led));
@@ -140,8 +144,8 @@ public class RobotContainer
     // left stick controls translation
     // right stick controls the angular velocity of the robot
     Command driveFieldOrientedAngularVelocity = s_Swerve.driveCommand(
-        () -> speedRate * translationLimiter.calculate(-MathUtil.applyDeadband(driverPS5.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND)),
-        () -> speedRate * strafeLimiter.calculate(-MathUtil.applyDeadband(driverPS5.getLeftX(), OperatorConstants.LEFT_X_DEADBAND)),
+        () -> isBlueAlliance*speedRate * translationLimiter.calculate(-MathUtil.applyDeadband(driverPS5.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND)),
+        () -> isBlueAlliance*speedRate * strafeLimiter.calculate(-MathUtil.applyDeadband(driverPS5.getLeftX(), OperatorConstants.LEFT_X_DEADBAND)),
         () -> speedRate * -MathUtil.applyDeadband(driverPS5.getRightX(), OperatorConstants.RIGHT_X_DEADBAND));
 
     Command driveFieldOrientedDirectAngleSim = s_Swerve.simDriveCommand(
@@ -177,9 +181,10 @@ public class RobotContainer
 
     m_chooser.setDefaultOption("mid pre+center", s_Swerve.getAutonomousCommand("mid pre+center"));
     SmartDashboard.putData("OTONOM", m_chooser);
-      m_chooser.addOption("mid pre+center", s_Swerve.getAutonomousCommand("mid pre+center"));
-      m_chooser.addOption("bottom pre+1", s_Swerve.getAutonomousCommand("bottom pre+1"));
+     m_chooser.addOption("4 piece source", s_Swerve.getAutonomousCommand("4 piece source"));
+      m_chooser.addOption("mid two", s_Swerve.getAutonomousCommand("mid two"));
       m_chooser.addOption("mid 4 piece", s_Swerve.getAutonomousCommand("mid 4 piece"));
+      m_chooser.addOption("mid 4 piece other", s_Swerve.getAutonomousCommand("mid 4 piece other 2"));
       m_chooser.addOption("center 4 piece", s_Swerve.getAutonomousCommand("center 4 piece"));
       m_chooser.addOption("mid pre", s_Swerve.getAutonomousCommand("mid pre"));
       m_chooser.addOption("mid pre+chaos", s_Swerve.getAutonomousCommand("mid pre+chaos"));
@@ -189,6 +194,7 @@ public class RobotContainer
       m_chooser.addOption("top pre", s_Swerve.getAutonomousCommand("top pre"));
       m_chooser.addOption("top pre+1", s_Swerve.getAutonomousCommand("top pre+1"));
       m_chooser.addOption("bottom pre taxi", s_Swerve.getAutonomousCommand("bottom pre taxi"));
+      m_chooser.addOption("bottom pre midfield", s_Swerve.getAutonomousCommand("bottom pre midfield"));
       m_chooser.addOption("bottom pre taxi+1", s_Swerve.getAutonomousCommand("bottom pre taxi+1"));
       m_chooser.addOption("bottom pre chaos2", s_Swerve.getAutonomousCommand("bottom pre chaos2"));
       m_chooser.addOption("do nothing", s_Swerve.getAutonomousCommand("do nothing"));
@@ -212,9 +218,9 @@ public class RobotContainer
                                    new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
                               )); */
 
-  driverPS5.triangle().whileTrue(s_Swerve.run
-  (() -> s_Swerve.aimAtTarget
-  (() -> -driverPS5.getLeftX(), () -> -driverPS5.getLeftY())));  
+ // driverPS5.triangle().whileTrue(s_Swerve.run
+//  (() -> s_Swerve.aimAtTarget
+  //(() -> -driverPS5.getLeftX(), () -> -driverPS5.getLeftY())));  
   
   
   driverPS5.square().whileTrue(new RepeatCommand(new InstantCommand(s_Swerve::lock, s_Swerve)));
@@ -223,6 +229,11 @@ public class RobotContainer
 
   driverPS5.R1().onTrue(Commands.runOnce(() -> speedRate = 0.50));
   driverPS5.R1().onFalse(Commands.runOnce(() -> speedRate = 1.0));
+
+  driverPS5.cross().whileTrue(s_Climber.run(() -> s_Climber.leftClimb()));
+
+
+  driverPS5.triangle().whileTrue(s_Climber.run(() -> s_Climber.leftClimbUp()));
 
   //driverPS5.R3().onTrue(Commands.runOnce(() -> s_Vision.setLimelightLed()));
 
@@ -253,13 +264,11 @@ public class RobotContainer
 
   
  operatorXbox.back().whileTrue(
-   new ShootCommand(s_Indexer, s_Led, s_Shooter, 1600, 1600)
+   new ShootCommand(s_Indexer, s_Led, s_Shooter, 2000, 2000)
     );
 
   operatorXbox.rightTrigger().whileTrue(
-   new ShootCommand(s_Indexer, s_Led, s_Shooter, 3200, 3500)
-    );
-
+    new autoShoot(s_Indexer, s_Arm, s_Led, s_Swerve,s_Shooter));
   operatorXbox.leftTrigger().whileTrue(
    new ShootCommand(s_Indexer, s_Led, s_Shooter, 4200, 4700)
    );

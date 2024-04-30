@@ -30,7 +30,7 @@ public class autoShoot extends Command {
     this.s_Swerve = s_Swerve;
     this.s_Shooter = s_Shooter;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(s_Indexer,s_Led,s_Shooter,s_Arm);
+    addRequirements(s_Indexer,s_Shooter,s_Arm);
   }
 
   // Called when the command is initially scheduled.
@@ -38,11 +38,12 @@ public class autoShoot extends Command {
   public void initialize() {
     tableArm = new InterpolatingDoubleTreeMap();
     tableShooter = new InterpolatingDoubleTreeMap();
+    s_Led.setShootMode(true);
        
 
-    tableArm.put(1.49, -39.3);
-    tableArm.put(1.74, -28.1);
-    tableArm.put(1.98, -22.8);
+    tableArm.put(1.49, -40.5);
+    tableArm.put(1.8, -31.1);
+    tableArm.put(2.0, -25.5);
     tableArm.put(2.05, -22.5);
     tableArm.put(2.3, -19.0);
     tableArm.put(2.69, -16.1);
@@ -51,7 +52,7 @@ public class autoShoot extends Command {
     tableArm.put(3.55, -11.0);
     tableArm.put(3.86, -8.4);
      tableArm.put(4.08, -7.7);
-     tableArm.put(4.67, -9.4);
+     tableArm.put(4.67, -7.4);
 
 
    // tableShooter.put(125.0, 450.0);
@@ -71,10 +72,10 @@ public class autoShoot extends Command {
   @Override
   public void execute() {
     s_Arm.armSet(Rotation2d.fromDegrees(tableArm.get(s_Swerve.getVisionDistance())));
-   s_Shooter.shooterSet(tableShooter.get(s_Swerve.getVisionDistance()),tableShooter.get(s_Swerve.getVisionDistance())+600);
+   s_Shooter.shooterSet(tableShooter.get(s_Swerve.getVisionDistance()),tableShooter.get(s_Swerve.getVisionDistance())+500);
     if (s_Shooter.isShooterAtSetpoint()){
-      s_Shooter.shooterSet(tableShooter.get(s_Swerve.getVisionDistance()),tableShooter.get(s_Swerve.getVisionDistance())+600);
-      s_Indexer.manualIndex(0.65);
+      s_Shooter.shooterSet(tableShooter.get(s_Swerve.getVisionDistance()),tableShooter.get(s_Swerve.getVisionDistance())+500);
+      s_Indexer.manualIndex(0.75);
       if(!s_Indexer.isNoteInIndexer())
     s_isDone = true;
    }
@@ -83,7 +84,10 @@ public class autoShoot extends Command {
   }
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    s_Led.setShootMode(false);
+    s_Shooter.shooterIdle();
+  }
 
   // Returns true when the command should end.
   @Override
